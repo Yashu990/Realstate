@@ -1,49 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowRight, ShieldCheck, CheckCircle2, 
   MapPin, Gavel, Scale, Handshake, TrendingUp, 
   Users, Info, Lock, Zap, Award, Briefcase, HeartHandshake, History,
   ArrowUpRight, Users2, Building2, Landmark, AreaChart, XCircle, CheckCircle,
-  Gem, Calendar, Rocket, MessageSquare, Globe2
+  Gem, Calendar, Rocket, MessageSquare, Globe2,
+  Instagram, Facebook, Linkedin, Youtube
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Asset Imports
-import hero1 from '../assets/hero1.png';
-import hero2 from '../assets/hero2.png';
-import hero3 from '../assets/hero3.png';
-import hero4 from '../assets/hero4.png';
-import agentImg from '../assets/agent.png';
+// Asset Imports (using absolute paths to prevent blank pages)
+import hero1 from '../assets/hero_mansion_1775971669274.png';
+import hero2 from '../assets/hero_villa_1775971611180.png';
+import hero3 from '../assets/hero_penthouse_1775971633142.png';
+import hero4 from '../assets/hero_office_1775971651404.png';
+import agentImg from '../assets/agent_meeting_1775971756154.png';
 import eventImg from '../assets/event.png';
-import legalImg from '../assets/legal.png';
+import legalImg from '../assets/legal_handover_1775971774939.png';
 import resImg from '../assets/res.png';
 import commImg from '../assets/comm.png';
 import offImg from '../assets/off.png';
-import aboutImg from '../assets/about-img.png';
+import aboutImg from '../assets/prop_interior_two_1775971698043.png';
 import chaosImg from '../assets/chaos.png';
 import advantageImg from '../assets/advantage.png';
-import prop1 from '../assets/prop1.png';
-import prop2 from '../assets/prop2.png';
-import prop3 from '../assets/prop3.png';
+import prop1 from '../assets/prop_exterior_one_1775971719346.png';
+import prop2 from '../assets/prop_exterior_two_1775971739359.png';
+import prop3 from '../assets/prop_interior_one_1775971684158.png';
+
+// Bento/Team Imports
+import bentoGlassSky from '../assets/bento_glass_sky_1775973425945.png';
+import bentoNightSky from '../assets/bento_night_sky_1775973444028.png';
+import bentoApartments from '../assets/bento_apartments_1775973460872.png';
 
 const heroImages = [hero1, hero2, hero3, hero4];
 
+// Animation Variants
+const proReveal = {
+  hidden: { opacity: 0, y: 40, scale: 0.98 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      duration: 1.2, 
+      ease: [0.16, 1, 0.3, 1] 
+    }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const maskReveal = {
+  hidden: { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+  visible: { 
+    clipPath: 'inset(0 0 0% 0)',
+    opacity: 1,
+    transition: { 
+      duration: 1.5, 
+      ease: [0.16, 1, 0.3, 1] 
+    }
+  }
+};
+
 const Hero = () => {
   const [current, setCurrent] = useState(0);
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % heroImages.length);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <section className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center bg-brand-navy">
+    <section ref={containerRef} className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center bg-brand-navy">
       {/* BACKGROUND SLIDER */}
       <div className="absolute inset-0 z-0 bg-brand-navy">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           <motion.div
             key={current}
             initial={{ opacity: 0 }}
@@ -51,96 +102,120 @@ const Hero = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5 }}
             className="absolute inset-0"
+            style={{ y, scale }}
           >
-            <div className="absolute inset-0 bg-brand-navy/30 z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/30 via-transparent to-brand-navy/60 z-10"></div>
             <img 
               src={heroImages[current]} 
               className="w-full h-full object-cover" 
-              alt="Premium Land Auctions"
+              alt="Luxury Real Estate" 
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
       {/* CONTENT */}
-      <div className="container relative z-20 text-center px-6 max-w-5xl">
+      <div className="container relative z-20 text-center px-6 max-w-4xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
         >
-          <div className="inline-flex items-center gap-2 mb-8 bg-brand-gold/10 px-4 py-2 rounded-full border border-brand-gold/20">
+          <motion.div 
+            className="inline-flex items-center gap-2 mb-8 bg-brand-gold/10 px-4 py-2 rounded-full border border-brand-gold/20"
+            variants={proReveal}
+          >
              <Gem size={14} className="text-brand-gold" />
              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold">Invitation-Only Platform</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-[1.15] tracking-tight">
-             Access India's 1000+ Premium NLCT Properties at 20-50% Below Market Value
-          </h1>
+          </motion.div>
           
-          <p className="text-base md:text-lg lg:text-xl font-medium text-white/70 mb-12 max-w-3xl mx-auto leading-relaxed">
-             Join our exclusive network connecting serious buyers with verified sellers. Your membership fee is fully refundable when you purchase your first property.
-          </p>
+          <motion.h1 
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+            variants={proReveal}
+          >
+             Premium Properties.<br/><span className="text-brand-gold italic font-serif">Exclusive Deals.</span>
+          </motion.h1>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-sm uppercase flex items-center gap-3 shadow-2xl">
+          <motion.p 
+            className="text-lg md:text-xl text-white/75 mb-12 max-w-2xl mx-auto font-medium"
+            variants={proReveal}
+          >
+             Access India's 1000+ verified NLCT properties at 20-50% below market value. Membership is limited.
+          </motion.p>
+          
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            variants={proReveal}
+          >
+            <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-sm uppercase flex items-center gap-3 shadow-2xl hover:shadow-3xl transition-shadow">
               <span>Apply for Membership</span>
               <ArrowRight size={20} />
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
   );
 };
 
-const StatsBanner = () => (
-  <section className="relative py-20 bg-brand-navy overflow-hidden">
-    <div className="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-fixed"></div>
-    <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/60 via-transparent to-transparent"></div>
-    
-    <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 text-center lg:text-left">
-       <span className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-4 block">Why Partner With Us?</span>
-       <h2 className="text-4xl lg:text-5xl font-bold text-white mb-16 italic">Your Premier Real Estate Ally</h2>
-       
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl">
-          {[
-            { v: "1000+", l: "Properties Curated" },
-            { v: "15+", l: "Years Elevating Real Estate" },
-            { v: "₹5,000Cr+", l: "Value Managed" }
-          ].map((s, i) => (
-            <div key={i} className="flex flex-col gap-2">
-               <span className="text-5xl font-black text-white">{s.v}</span>
-               <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold/60">{s.l}</span>
-            </div>
-          ))}
-       </div>
-    </div>
-  </section>
-);
-
-const PropertySolutions = () => {
-  const solutions = [
-    { title: "Residential Properties", img: resImg },
-    { title: "Commercial Properties", img: commImg },
-    { title: "Offices", img: offImg }
-  ];
+const StatsBanner = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
   return (
-    <section className="py-24 bg-white border-b border-zinc-100">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-        <span className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block">Complete Real Estate Solutions in Gurgaon</span>
-        <h2 className="text-4xl lg:text-5xl font-bold text-brand-navy mb-16 leading-tight">Residential, Commercial &<br/> Investment Property Solutions</h2>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          {solutions.map((s, i) => (
-            <div key={i} className="relative aspect-[3/4] overflow-hidden rounded-3xl group cursor-pointer shadow-2xl">
-              <img src={s.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={s.title} />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute bottom-10 left-0 w-full text-center">
-                <span className="text-white text-xl font-bold tracking-tight">{s.title}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+    <section ref={containerRef} className="relative py-20 bg-brand-navy overflow-hidden">
+      <motion.div 
+        className="absolute inset-0 opacity-90 bg-cover bg-center" 
+        style={{ backgroundImage: `url(${hero4})`, y }}
+      ></motion.div>
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/30 via-brand-navy/40 to-transparent"></div>
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 text-center lg:text-left">
+         <motion.span 
+           className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-4 block"
+           variants={proReveal}
+           initial="hidden"
+           whileInView="visible"
+           viewport={{ once: true }}
+         >
+           Why Partner With Us?
+         </motion.span>
+         <motion.h2 
+           className="text-4xl lg:text-5xl font-bold text-white mb-16"
+           variants={proReveal}
+           initial="hidden"
+           whileInView="visible"
+           viewport={{ once: true }}
+         >
+           Your Premier Real Estate Ally
+         </motion.h2>
+         
+         <motion.div 
+           className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl"
+           variants={staggerContainer}
+           initial="hidden"
+           whileInView="visible"
+           viewport={{ once: true }}
+         >
+            {[
+              { v: "1000+", l: "Properties Curated" },
+              { v: "15+", l: "Years Elevating Real Estate" },
+              { v: "₹5,000Cr+", l: "Value Managed" }
+            ].map((s, i) => (
+              <motion.div 
+                key={i} 
+                className="flex flex-col gap-2"
+                variants={proReveal}
+              >
+                 <span className="text-5xl font-black text-white">{s.v}</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold/60">{s.l}</span>
+              </motion.div>
+            ))}
+         </motion.div>
       </div>
     </section>
   );
@@ -164,7 +239,7 @@ const PlatformDifferentiation = () => {
     },
     {
       t: "Platform Infrastructure",
-      d: "End-to-end legal, bidding, and title-transfer protocols managed by our dedicated institutional desk.",
+      d: "Integrated legal-tech and escrow protocols ensuring secure, institutional-grade transaction velocity.",
       img: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop",
       icon: <Globe2 size={24} />,
       color: "navy"
@@ -172,256 +247,66 @@ const PlatformDifferentiation = () => {
   ];
 
   return (
-    <section className="section-padding bg-white overflow-hidden">
+    <section className="section-padding bg-zinc-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="text-center mb-24">
           <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-4 block"
+            className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block"
+            variants={proReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
-            Platform Differentiation
+            Why This Platform is Superior
           </motion.span>
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl lg:text-7xl font-black text-brand-navy tracking-tight"
+            className="text-4xl lg:text-6xl font-bold text-brand-navy"
+            variants={proReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
-            Why Our Platform is <span className="text-brand-gold italic">Superior.</span>
+            Platform Differentiation
           </motion.h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <motion.div 
+          className="grid lg:grid-cols-3 gap-8"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {cards.map((card, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.2, type: "spring", stiffness: 100 }}
-              className="group relative flex flex-col h-full bg-zinc-50 rounded-[40px] overflow-hidden border border-zinc-100 shadow-xl hover:shadow-2xl transition-all duration-700"
+            <motion.div 
+              key={i} 
+              className="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-700"
+              variants={proReveal}
             >
-              {/* Image Container - FIT */}
-              <div className="aspect-[4/3] overflow-hidden relative">
-                <img 
-                  src={card.img} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
-                  alt={card.t} 
-                />
-                <div className="absolute inset-0 bg-brand-navy/20 group-hover:bg-brand-navy/10 transition-colors"></div>
-                <div className="absolute top-6 right-6 p-3 bg-white/90 backdrop-blur-md rounded-2xl text-brand-navy shadow-lg">
-                  {card.icon}
+              {/* Image Background */}
+              <img 
+                src={card.img} 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                alt={card.t} 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+              
+              {/* Content Overlay */}
+              <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/20 group-hover:bg-brand-gold/20 group-hover:border-brand-gold/40 transition-all">
+                  <div className="text-brand-gold">{card.icon}</div>
                 </div>
-              </div>
-
-              {/* Content Container */}
-              <div className="p-10 flex flex-col flex-grow">
-                <h3 className="text-2xl font-black text-brand-navy mb-4 group-hover:text-brand-gold transition-colors">{card.t}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed font-medium mb-8 flex-grow">
+                <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-brand-gold transition-colors">{card.t}</h3>
+                <p className="text-white/60 text-sm leading-relaxed font-medium mb-8 max-w-[280px]">
                   {card.d}
                 </p>
-                <div className="pt-6 border-t border-zinc-200">
-                  <button className="text-brand-navy font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all">
-                    Discover More <Zap size={14} className="text-brand-gold" />
-                  </button>
+                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  Learn more <ArrowRight size={14} className="text-brand-gold" />
                 </div>
               </div>
-              
-              {/* Corner Accent */}
-              <div className="absolute bottom-0 right-0 w-24 h-24 bg-brand-gold/5 rounded-tl-[80px] -mr-12 -mb-12 group-hover:scale-150 transition-transform duration-1000"></div>
             </motion.div>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const SuccessGrid = () => {
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, scale: 0.8, y: 50, rotate: -2 },
-    show: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0, 
-      rotate: 0,
-      transition: { type: "spring", stiffness: 100, damping: 15 }
-    }
-  };
-
-  return (
-    <section className="section-padding bg-white overflow-hidden">
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
-        className="max-w-7xl mx-auto px-6 lg:px-12"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Top Left: Logo/Socials */}
-          <motion.div variants={item} className="md:col-span-1 space-y-6">
-            <div className="aspect-square bg-brand-navy rounded-3xl p-8 flex flex-col justify-between shadow-2xl">
-              <div className="w-12 h-12 bg-brand-gold text-brand-navy rounded-xl flex items-center justify-center text-2xl font-black shadow-lg">V</div>
-              <div className="grid grid-cols-2 gap-2">
-                {[<MessageSquare />, <Users />, <Handshake />, <Zap />].map((icon, i) => (
-                  <motion.div 
-                    key={i} 
-                    whileHover={{ scale: 1.2, rotate: 10 }}
-                    className="aspect-square bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-brand-gold hover:text-brand-navy transition-colors cursor-pointer"
-                  >
-                    {icon}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl relative group">
-              <img src={prop1} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Properties" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
-              <div className="absolute bottom-6 left-6 right-6">
-                 <h4 className="text-white font-bold text-xl drop-shadow-md">Tailored Solutions</h4>
-                 <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Innovative Strategies</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Middle Column */}
-          <motion.div variants={item} className="md:col-span-1 space-y-6">
-            <div className="aspect-[3/5] rounded-3xl overflow-hidden shadow-2xl relative group">
-              <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Consulting" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-70"></div>
-              <div className="absolute bottom-10 left-8 right-8">
-                 <h4 className="text-white text-3xl font-bold mb-2 drop-shadow-lg font-serif">Insightful Consulting</h4>
-                 <span className="bg-brand-gold text-brand-navy text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-black shadow-lg">Strategic Investment</span>
-              </div>
-            </div>
-            <motion.div 
-               whileHover={{ y: -10, scale: 1.02 }}
-               className="aspect-square bg-zinc-50 rounded-3xl p-10 border border-zinc-100 flex flex-col justify-between group hover:bg-brand-navy transition-all duration-500 shadow-lg"
-            >
-               <div className="w-16 h-16 rounded-full border-4 border-brand-teal border-t-zinc-200 flex items-center justify-center text-xl font-black text-brand-navy group-hover:text-white group-hover:border-brand-gold transition-all duration-500">92%</div>
-               <div>
-                  <h4 className="text-xl font-black mb-2 text-brand-navy group-hover:text-white transition-colors">Measurable Success</h4>
-                  <p className="text-xs text-zinc-500 group-hover:text-white/60 leading-relaxed font-medium">Consistent delivery on high-impact real estate objectives.</p>
-               </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Column 1 */}
-          <motion.div variants={item} className="md:col-span-1 space-y-6">
-            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl group">
-              <img src={prop2} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Guidance" />
-            </div>
-            <div className="aspect-[3/5] rounded-3xl overflow-hidden shadow-2xl relative group">
-              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Expert" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-70"></div>
-              <div className="absolute bottom-10 left-8 right-8">
-                 <h4 className="text-white text-3xl font-bold mb-2 drop-shadow-lg font-serif">Expert Guidance</h4>
-                 <span className="bg-brand-navy text-white border border-white/20 text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-black">Empowering Futures</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Column 2: Join Team */}
-          <motion.div variants={item} className="md:col-span-1 space-y-6">
-             <div className="aspect-[4/6] bg-black rounded-3xl p-10 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl border border-white/5">
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-black mb-4 font-serif text-white group-hover:text-brand-gold transition-colors">Join Our Visionary Team</h3>
-                </div>
-                <div className="flex -space-x-4 relative z-10">
-                   {[1, 2, 3].map((_, i) => (
-                     <motion.div 
-                       key={i} 
-                       whileHover={{ y: -8, scale: 1.1, zIndex: 20 }}
-                       className="w-14 h-14 rounded-full border-2 border-black overflow-hidden bg-zinc-800 shadow-xl"
-                     >
-                        <img src={`https://i.pravatar.cc/150?u=${i+20}`} alt="Avatar" />
-                     </motion.div>
-                   ))}
-                </div>
-                <Link to="/membership" className="relative z-10 text-brand-gold font-black text-sm underline underline-offset-8 hover:text-white transition-colors tracking-widest uppercase">Explore Careers</Link>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
-             </div>
-             <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl group">
-                <img src={prop3} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="Projects" />
-             </div>
-          </motion.div>
-        </div>
-      </motion.div>
-    </section>
-  );
-};
-
-const InvestorEvents = () => {
-  const events = [
-    { t: "Spring Summit", m: "Q1", d: "Major portfolio discovery and seasonal market entry brief." },
-    { t: "Mid-Year Showcase", m: "Q2", d: "Live auction demonstrations and primary asset reveals." },
-    { t: "Portfolio Review", m: "Q3", d: "Performance analysis and strategic asset re-allocation." },
-    { t: "Annual Gala", m: "Q4", d: "Investor awards and exclusive upcoming mandate preview." }
-  ];
-
-  return (
-    <section className="section-padding bg-brand-navy text-white overflow-hidden relative">
-      <div className="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center bg-fixed"></div>
-      <div className="absolute inset-0 bg-brand-navy/40"></div>
-      
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-        <div className="text-center mb-24">
-          <span className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block drop-shadow-md">Exclusive Community</span>
-          <h2 className="text-4xl lg:text-5xl font-bold text-white italic drop-shadow-lg">Quarterly Investor Events</h2>
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {events.map((e, i) => (
-            <div key={i} className="p-10 bg-white/5 border border-white/10 rounded-3xl hover:bg-brand-gold/10 hover:border-brand-gold/30 transition-all duration-500 group cursor-default backdrop-blur-sm">
-              <span className="text-brand-gold font-bold text-xs mb-6 block tracking-widest uppercase">{e.m}</span>
-              <h4 className="text-2xl font-bold mb-4 text-white group-hover:text-brand-gold transition-colors">{e.t}</h4>
-              <p className="text-sm text-zinc-300 leading-relaxed font-medium group-hover:text-white transition-colors">{e.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Benefits = () => {
-  const coreBenefits = [
-    { t: "1000+ Premium Properties at 20-50% Discount", d: "Largest curated NLCT portfolio in India with value over ₹5,000 crores.", icon: <Building2 className="text-brand-gold" size={32} /> },
-    { t: "Dedicated Personal Agent - Your Property Scout", d: "Expert scout familiar with your budget and goals manages your journey.", icon: <Users2 className="text-brand-gold" size={32} /> },
-    { t: "Expert Legal Support & Compliance", d: "Senior advocates handling document verification and 12-month warranties.", icon: <Landmark className="text-brand-gold" size={32} /> },
-    { t: "Quarterly Investor Events (4 Per Year)", d: "Networking designed for serious investors. Spring, Mid-Year, Portfolio, Gala.", icon: <Calendar className="text-brand-gold" size={32} /> },
-    { t: "Free Lifetime Selling Services", d: "Sell properties purchased through us at zero commission, forever.", icon: <ArrowUpRight className="text-brand-gold" size={32} /> },
-    { t: "Verified Buyers & Sellers Platform", d: "Controlled platform for serious investors. No casual browsers.", icon: <ShieldCheck className="text-brand-gold" size={32} /> },
-    { t: "Transparent Auction Process", d: "Complete clarity, bidding strategy consultation, and filling management.", icon: <Gavel className="text-brand-gold" size={32} /> },
-    { t: "Stress-Free Property Handover", d: "From win to possession, we handle registration and inspection.", icon: <Handshake className="text-brand-gold" size={32} /> },
-    { t: "Investment Insights & Analysis", d: "Comprehensive research achieving 15-25% average member ROI.", icon: <AreaChart className="text-brand-gold" size={32} /> }
-  ];
-
-  return (
-    <section className="section-padding bg-zinc-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-20">
-         <h2 className="text-4xl lg:text-5xl font-bold text-brand-navy italic">Platform Infrastructure.</h2>
-      </div>
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {coreBenefits.map((b, i) => (
-          <div key={i} className="luxury-card group">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-50 flex items-center justify-center mb-8 bg-zinc-900 group-hover:bg-brand-gold transition-colors">{b.icon}</div>
-            <h4 className="text-xl font-bold mb-4">{b.t}</h4>
-            <p className="text-zinc-500 text-sm leading-relaxed font-medium">{b.d}</p>
-          </div>
-        ))}
+        </motion.div>
       </div>
     </section>
   );
@@ -432,230 +317,254 @@ const EnhancedPortfolio = () => {
     { t: "Trump Tower 2", l: "Sector 69, SPR Road, Gurgaon", p: "₹9.2 Cr", img: prop1, d: "View verified property details, pricing, and location insights." },
     { t: "M3M Jacob & Co Noida", l: "At Sector 94, Noida", p: "₹7.5 Cr", img: prop2, d: "View verified property details, pricing, and location insights." },
     { t: "M3M Paragon 57", l: "Sector 57, Gurugram", p: "₹1.2 Cr", img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1035&auto=format&fit=crop", d: "View verified property details, pricing, and location insights." },
-    { t: "Smart World Orchard Street", l: "Sector 61, Gurugram", p: "₹2.5 Cr", img: prop3, d: "View verified property details, pricing, and location insights." },
-    { t: "Smart World One DXP Street", l: "Sector 113, Gurugram", p: "₹2.5 Cr", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop", d: "View verified property details, pricing, and location insights." },
-    { t: "Elan The Mark", l: "Sector 106, Gurugram", p: "₹1.91 Cr", img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop", d: "View verified property details, pricing, and location insights." }
+    { t: "The Imperial", l: "Sector 102, Gurgaon", p: "₹3.2 Cr", img: prop3, d: "View verified property details, pricing, and location insights." },
+    { t: "Smart World Orchard", l: "Sector 61, Gurgaon", p: "₹2.5 Cr", img: resImg, d: "View verified property details, pricing, and location insights." },
+    { t: "Elan The Mark", l: "Sector 106, Gurgaon", p: "₹1.9 Cr", img: offImg, d: "View verified property details, pricing, and location insights." }
   ];
 
   return (
-    <section className="section-padding bg-white">
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-6 lg:px-12 text-center mb-20"
-      >
-        <p className="text-zinc-400 font-bold uppercase tracking-[0.3em] text-[10px] mb-4">Exclusively For You</p>
-        <h2 className="text-5xl lg:text-7xl font-serif font-black text-brand-dark tracking-tighter">Curated Portfolio</h2>
-      </motion.div>
-      
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 grid md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
-        {properties.map((p, i) => (
-          <motion.div 
-            key={i} 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.6 }}
-            className="group cursor-pointer"
-          >
-            <div className="aspect-[4/3] overflow-hidden rounded-[32px] mb-8 shadow-2xl relative">
-              <img src={p.img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={p.t} />
-            </div>
-            <h3 className="text-xl font-bold text-brand-navy mb-1">{p.t}</h3>
-            <p className="text-xs font-bold text-zinc-400 mb-3">{p.l}</p>
-            <p className="text-lg font-black text-brand-dark mb-4">{p.p}</p>
-            <p className="text-xs text-zinc-500 leading-relaxed max-w-[260px]">{p.d}</p>
-          </motion.div>
-        ))}
+    <section className="section-padding bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <motion.div 
+          className="text-center mb-24"
+          variants={proReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <span className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block">Institutional Grade Assets</span>
+          <h2 className="text-4xl lg:text-6xl font-bold text-brand-navy mb-4">Curated Portfolio</h2>
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">1000+ Premium Properties Handpicked for Serious Investors</p>
+        </motion.div>
+
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+        >
+          {properties.map((p, i) => (
+            <motion.div 
+              key={i} 
+              className="group cursor-pointer"
+              variants={proReveal}
+            >
+              <motion.div 
+                className="aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-2xl relative"
+                whileHover={{ y: -10 }}
+                variants={maskReveal}
+              >
+                <img src={p.img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={p.t} />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute top-6 left-6 bg-brand-gold text-brand-navy text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-lg transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                  Verified Asset
+                </div>
+              </motion.div>
+              <h3 className="text-2xl font-bold text-brand-navy mb-1 group-hover:text-brand-gold transition-colors">{p.t}</h3>
+              <p className="text-sm font-bold text-zinc-400 mb-4 flex items-center gap-2">
+                <MapPin size={14} className="text-brand-gold" /> {p.l}
+              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xl font-black text-brand-navy">{p.p}</p>
+                <Link to={`/property/${i}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-gold border-b border-brand-gold/30 pb-0.5 hover:border-brand-gold transition-all">View Details</Link>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
 };
 
-const MarketInsights = () => (
-  <section className="section-padding bg-zinc-50/50">
+const TestimonialSection = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+
+  return (
+    <section ref={containerRef} className="py-32 relative bg-brand-navy overflow-hidden">
+       <motion.div 
+         className="absolute inset-0 opacity-85 bg-cover bg-center" 
+         style={{ backgroundImage: `url(${aboutImg})`, y }}
+       ></motion.div>
+       <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/50 to-brand-navy/90"></div>
+       
+       <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10 flex flex-col justify-center">
+          <div className="relative mb-12 max-w-4xl">
+            <motion.p 
+              className="text-white text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed mb-8 opacity-90"
+              variants={proReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+               "Being based in Dubai, I wanted to invest in Gurgaon property but was worried about fraud and hidden costs. A friend recommended PremiumLand. Honestly, they made everything so transparent—sent me video tours, explained every single charge beforehand, and even helped me understand RERA compliance. I bought a 3 BHK in Golf Course Extension Road, and they're now managing the rental for me too. Worth every rupee of their fee. Finally found someone trustworthy in real estate!"
+            </motion.p>
+            <motion.div 
+              className="flex items-center gap-4"
+              variants={proReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+               <div className="w-14 h-14 rounded-full overflow-hidden border border-brand-gold bg-brand-gold/10">
+                  <img src={agentImg} alt="Raj Mehta" className="w-full h-full object-cover" />
+               </div>
+               <div className="text-left">
+                  <p className="text-white font-bold text-lg">Raj Mehta</p>
+                  <p className="text-brand-gold/80 text-xs font-bold uppercase tracking-widest mt-1">NRI Investor, Dubai</p>
+               </div>
+            </motion.div>
+          </div>
+       </div>
+    </section>
+  );
+};
+
+// Team & Careers Section (Bento Grid)
+const TeamCareers = () => (
+  <section className="py-24 bg-[#FAF9F6] border-y border-zinc-200 overflow-hidden">
     <div className="max-w-7xl mx-auto px-6 lg:px-12">
       <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
       >
-        <div>
-           <p className="text-zinc-400 font-bold uppercase tracking-[0.3em] text-[10px] mb-4">Market Insights</p>
-           <h2 className="text-4xl lg:text-6xl font-serif font-black text-brand-dark max-w-2xl leading-[1.1]">Expert Perspectives & <br/>Luxury Real Estate Trends</h2>
-        </div>
-        <Link to="/insights" className="px-8 py-3 bg-brand-navy text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-brand-gold hover:text-brand-navy transition-all shadow-xl">
-           <span>View All Insights</span>
-           <ArrowUpRight size={16} />
-        </Link>
-      </motion.div>
-
-      <div className="grid lg:grid-cols-3 gap-10">
-         {/* Main Article */}
-         <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="lg:col-span-2 bg-white rounded-[40px] overflow-hidden border border-zinc-100 shadow-xl group"
-         >
-            <div className="aspect-[16/8] overflow-hidden">
-               <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Legal" />
-            </div>
-            <div className="p-12">
-               <span className="bg-brand-dark text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-8 inline-block">Must Read</span>
-               <h3 className="text-3xl lg:text-4xl font-serif font-black mb-6 text-brand-dark group-hover:text-brand-gold transition-colors">Legal Aspects of Property Buying in Gurgaon...</h3>
-               <p className="text-zinc-500 text-sm leading-relaxed font-medium line-clamp-2">Purchasing property in Gurgaon represents one of the most significant financial decisions you'll ever make. With the city's booming real estate market, legal due diligence is more critical than ever.</p>
-            </div>
-         </motion.div>
-
-         {/* Secondary Articles List */}
-         <div className="flex flex-col gap-8">
-            {[
-              { t: "Sector 103 Gurgaon Property Guide...", img: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop" },
-              { t: "How to Choose the Best Broker Fir...", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2070&auto=format&fit=crop" },
-              { t: "2BHK vs 3BHK Investment in Gurga...", img: "https://images.unsplash.com/photo-1460317442991-0ec209397118?q=80&w=2070&auto=format&fit=crop" }
-            ].map((art, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="flex gap-6 group cursor-pointer items-center"
-              >
-                 <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg">
-                    <img src={art.img} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={art.t} />
-                 </div>
-                 <div>
-                    <h4 className="text-sm font-black text-brand-navy leading-snug group-hover:text-brand-gold transition-colors">{art.t}</h4>
-                 </div>
-              </motion.div>
-            ))}
-         </div>
-      </div>
-    </div>
-  </section>
-);
-
-const AboutConsultancy = () => (
-  <section className="section-padding bg-white overflow-hidden">
-     <div className="max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-20 items-center">
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative"
-        >
-           <p className="text-zinc-400 font-bold uppercase tracking-[0.3em] text-[10px] mb-6">About Oak N Stone Inc.</p>
-           <h2 className="text-5xl lg:text-7xl font-serif font-black text-brand-dark mb-10 tracking-tighter leading-[0.95]">Leading Real Estate <br/>Consultancy In <br/><span className="text-brand-gold italic">Gurgaon.</span></h2>
-           <p className="text-zinc-500 text-sm leading-[1.8] font-medium mb-12 max-w-xl">
-             Oak N Stone Inc. is a premier real estate consultancy in Gurgaon with 200+ professionals specializing in luxury residential and commercial properties. Established in 2018 and RERA registered, we serve clients across Sector 67, Golf Course Road, Dwarka Expressway, DLF Phases, and all major Gurgaon locations. Our comprehensive services include property buying and selling consultation, investment advisory, commercial leasing, NRI property services, and legal documentation support.
-           </p>
-           <button className="px-10 py-4 bg-brand-dark text-white rounded-lg flex items-center gap-4 text-[10px] font-black uppercase tracking-widest hover:bg-brand-gold hover:text-brand-navy transition-all shadow-2xl group">
-              <span>Discover More</span>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-brand-navy/10 transition-colors"><ArrowUpRight size={16} /></div>
-           </button>
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative"
-        >
-           <div className="aspect-square rounded-[60px] overflow-hidden shadow-3xl">
-              <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover" alt="Interior" />
-           </div>
-           {/* Floating Badge */}
-           <motion.div 
-             initial={{ scale: 0 }}
-             whileInView={{ scale: 1 }}
-             viewport={{ once: true }}
-             transition={{ delay: 0.5, type: "spring" }}
-             className="absolute -bottom-10 -left-10 bg-white p-8 rounded-[40px] shadow-3xl flex items-center gap-6 border border-zinc-100"
-           >
-              <div className="w-16 h-16 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-bold">15+</div>
-              <div>
-                 <p className="text-brand-dark font-black text-sm uppercase leading-none mb-1">Years Experience</p>
-                 <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Industry Leadership</p>
-              </div>
-           </motion.div>
-        </motion.div>
-     </div>
-  </section>
-);
-
-const TestimonialSection = () => (
-  <section className="py-40 relative bg-brand-navy overflow-hidden">
-     <div className="absolute inset-0 opacity-60 bg-[url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
-     <div className="absolute inset-0 bg-brand-navy/40"></div>
-     
-     <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-        <p className="text-white text-2xl md:text-3xl font-bold leading-relaxed mb-12 italic drop-shadow-lg">
-           "I was completely lost when I started looking for a property in Gurgaon. My budget was tight, and I didn't know which sectors were actually good. The PremiumLand team didn't just show me random properties—they sat with me, understood my goals, and found me a perfect asset at 30% below market price."
-        </p>
-        <div className="flex items-center justify-center gap-4">
-           <div className="w-14 h-14 rounded-full bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center text-brand-gold font-bold text-lg shadow-2xl">PV</div>
-           <div className="text-left">
-              <p className="text-white font-bold text-base drop-shadow-md">Priya Verma</p>
-              <p className="text-brand-gold text-[10px] font-bold uppercase tracking-widest drop-shadow-sm">Premium Member</p>
-           </div>
-        </div>
-     </div>
-  </section>
-);
-
-const TrustMetrics = () => (
-  <section className="py-24 bg-white">
-    <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-12 text-center">
-        {[
-          { v: "1000+", l: "Properties" },
-          { v: "₹5K Cr+", l: "Portfolio" },
-          { v: "800+", l: "Deals Done" },
-          { v: "98%", l: "Satisfied" },
-          { v: "15-25%", l: "Avg ROI" }
-        ].map((m, i) => (
-          <div key={i} className="flex flex-col gap-2">
-            <span className="text-5xl font-black text-brand-navy transition-colors hover:text-brand-gold">{m.v}</span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold">{m.l}</span>
+        
+        {/* Column 1 */}
+        <motion.div className="flex flex-col gap-6" variants={proReveal}>
+          <motion.div className="rounded-3xl bg-zinc-200 h-80 overflow-hidden shadow-sm" variants={maskReveal}>
+            <img src={bentoGlassSky} alt="Glass Skyscrapers" className="w-full h-full object-cover" />
+          </motion.div>
+          <div className="grid grid-cols-4 gap-3 h-20">
+            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Instagram size={20} /></a>
+            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Facebook size={20} /></a>
+            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Linkedin size={20} /></a>
+            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Youtube size={20} /></a>
           </div>
-        ))}
+          <motion.div className="rounded-3xl bg-zinc-200 h-48 overflow-hidden relative shadow-sm group cursor-pointer border border-zinc-200" variants={maskReveal}>
+            <img src={prop1} alt="Modern Office" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-brand-navy/20 to-transparent"></div>
+            <div className="absolute top-4 left-4 bg-brand-navy/80 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/10 shadow-lg">Innovative Strategies</div>
+          </motion.div>
+        </motion.div>
+
+        {/* Column 2 */}
+        <motion.div className="flex flex-col gap-6" variants={proReveal}>
+          <motion.div className="rounded-3xl bg-zinc-200 h-96 overflow-hidden relative shadow-sm group cursor-pointer border border-zinc-200" variants={maskReveal}>
+            <img src={bentoApartments} alt="Apartment Complex" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 via-transparent to-brand-navy/10"></div>
+            <div className="absolute top-4 left-4 bg-brand-navy/80 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/10 shadow-lg">Strategic Investment</div>
+            <div className="absolute bottom-6 left-6 text-white text-xl font-bold max-w-[150px]">Insightful Consulting</div>
+          </motion.div>
+          <div className="rounded-3xl bg-brand-navy h-[208px] flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
+            <div className="w-24 h-24 rounded-full border-[3px] border-zinc-800 flex items-center justify-center relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                 <circle cx="48" cy="48" r="45" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-green-500" strokeDasharray="282" strokeDashoffset="24" strokeLinecap="round" />
+               </svg>
+               <span className="text-white font-bold text-xl relative z-10">92%</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Column 3 */}
+        <motion.div className="flex flex-col gap-6" variants={proReveal}>
+          <motion.div className="rounded-3xl bg-zinc-200 h-72 overflow-hidden shadow-sm border border-zinc-200" variants={maskReveal}>
+            <img src={prop2} alt="Residential Towers" className="w-full h-full object-cover" />
+          </motion.div>
+          <motion.div className="rounded-3xl bg-blue-700 h-[304px] overflow-hidden relative shadow-md group cursor-pointer" variants={maskReveal}>
+            <img src={bentoNightSky} alt="Night Sky" className="w-full h-full object-cover mix-blend-overlay opacity-90 group-hover:scale-105 transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent mix-blend-multiply opacity-50"></div>
+            <div className="absolute top-4 left-4 bg-brand-navy/60 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/20 shadow-lg">Empowering Futures</div>
+          </motion.div>
+        </motion.div>
+
+        {/* Column 4 */}
+        <motion.div className="flex flex-col gap-6" variants={proReveal}>
+          <div className="rounded-3xl bg-brand-navy h-[384px] p-8 relative overflow-hidden shadow-lg flex flex-col justify-between">
+            <h3 className="text-[28px] font-bold text-white relative z-10 leading-tight">Join Our Visionary Team</h3>
+            <div className="relative z-10">
+              <div className="flex -space-x-4 mb-6">
+                <div className="w-16 h-16 rounded-full border-2 border-brand-navy bg-white overflow-hidden shadow-xl">
+                   <img src={agentImg} className="w-full h-full object-cover scale-150 object-top" alt="Agent 1" />
+                </div>
+                <div className="w-16 h-16 rounded-full border-2 border-brand-navy bg-white overflow-hidden shadow-xl">
+                   <img src={aboutImg} className="w-full h-full object-cover scale-125 object-center" alt="Agent 2" />
+                </div>
+              </div>
+              <Link to="/careers" className="inline-block text-white text-[17px] font-medium border-b-2 border-brand-gold pb-0.5 hover:text-brand-gold transition-colors">
+                Explore Careers
+              </Link>
+            </div>
+          </div>
+          <motion.div className="rounded-3xl bg-zinc-200 h-44 overflow-hidden relative shadow-sm border border-zinc-200" variants={maskReveal}>
+            <img src={hero1} alt="Residence" className="w-full h-full object-cover" />
+            <div className="absolute bottom-4 right-4 bg-white/95 shadow-xl rounded-full py-2 px-3 flex items-center gap-2 cursor-pointer hover:bg-white transition-colors border border-zinc-100">
+               <span className="text-xs font-bold text-brand-navy pl-1">Contact us</span>
+               <div className="w-6 h-6 rounded-full bg-[#6dbf73] flex items-center justify-center text-white shadow-[0_0_10px_rgba(109,191,115,0.5)]"><MessageSquare size={12} fill="currentColor" className="text-white scale-90" /></div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+      </motion.div>
     </div>
   </section>
 );
 
 const Home = () => {
   return (
-    <main className="bg-white">
+    <main className="bg-white overflow-x-hidden">
       <Hero />
       <StatsBanner />
-      <PropertySolutions />
-      <AboutConsultancy />
-      <EnhancedPortfolio />
       <PlatformDifferentiation />
-      <SuccessGrid />
-      <MarketInsights />
-      <InvestorEvents />
-      <Benefits />
+      <EnhancedPortfolio />
       <TestimonialSection />
-      <TrustMetrics />
+      <TeamCareers />
       
-      <section className="section-padding bg-brand-navy text-white text-center rounded-t-[100px] mt-24 relative overflow-hidden">
-         <div className="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
-         <div className="absolute inset-0 bg-brand-navy/60"></div>
-         
-         <div className="max-w-4xl mx-auto px-6 relative z-10">
-            <h3 className="text-5xl lg:text-7xl font-bold mb-12 italic text-white drop-shadow-2xl">Join a Private Network Built for Serious Investors</h3>
-            <div className="flex flex-wrap justify-center gap-6">
-               <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-[12px] font-black uppercase shadow-2xl">Apply for Membership</Link>
-               <button className="btn-pill !border-white/20 !text-white !px-12 !py-5 hover:bg-white/10 text-[12px] font-black uppercase">Schedule Consultation</button>
-            </div>
-         </div>
-      </section>
+      {/* FINAL CTA */}
+      <motion.section 
+        className="py-24 bg-brand-navy text-white text-center overflow-hidden relative"
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        viewport={{ once: true }}
+      >
+        <div className="absolute inset-0 bg-cover bg-center opacity-75" style={{ backgroundImage: `url(${agentImg})` }}></div>
+        <div className="absolute inset-0 bg-brand-navy/40"></div>
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <motion.h3 
+            className="text-5xl lg:text-7xl font-bold mb-6"
+            variants={proReveal}
+            initial="hidden"
+            whileInView="visible"
+          >
+            Ready to Access<br/>Premium Deals?
+          </motion.h3>
+          <motion.p 
+            className="text-white/70 text-lg mb-12 max-w-2xl mx-auto font-medium"
+            variants={proReveal}
+            initial="hidden"
+            whileInView="visible"
+          >
+            Join thousands of investors already building wealth through PremiumLand's exclusive platform.
+          </motion.p>
+          <motion.div 
+            className="flex flex-wrap justify-center gap-4"
+            variants={proReveal}
+            initial="hidden"
+            whileInView="visible"
+          >
+            <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-sm font-black uppercase shadow-2xl">Apply for Membership</Link>
+            <a href="tel:+919090112214" className="btn-pill !border-white/20 !text-white !px-12 !py-5 hover:bg-white/10 text-sm font-black uppercase transition-all">Call: +91 909-011-2214</a>
+          </motion.div>
+        </div>
+      </motion.section>
     </main>
   );
 };
