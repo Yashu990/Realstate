@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { 
   ArrowRight, ShieldCheck, CheckCircle2, 
   MapPin, Gavel, Scale, Handshake, TrendingUp, 
@@ -28,22 +28,35 @@ import prop1 from '../assets/prop1.png';
 import prop2 from '../assets/prop2.png';
 import prop3 from '../assets/prop3.png';
 
-// Fallback logic for missing bento assets to prevent build break
+const heroImages = [hero1, hero2, hero3, hero4];
+
+// FALLBACK IMAGES
 const bentoGlassSky = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop";
 const bentoNightSky = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop";
 const bentoApartments = "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop";
 
-const heroImages = [hero1, hero2, hero3, hero4];
-
-// Animation Variants
+// PREMIUM ANIMATION VARIANTS
 const proReveal = {
-  hidden: { opacity: 0, y: 40, scale: 0.98 },
+  hidden: { opacity: 0, y: 100, filter: 'blur(10px)' },
   visible: { 
     opacity: 1, 
     y: 0, 
+    filter: 'blur(0px)',
+    transition: { 
+      duration: 1.4, 
+      ease: [0.16, 1, 0.3, 1] 
+    }
+  }
+};
+
+const maskReveal = {
+  hidden: { clipPath: 'inset(100% 0 0 0)', opacity: 0, scale: 1.2 },
+  visible: { 
+    clipPath: 'inset(0% 0 0 0)', 
+    opacity: 1, 
     scale: 1,
     transition: { 
-      duration: 1.2, 
+      duration: 1.8, 
       ease: [0.16, 1, 0.3, 1] 
     }
   }
@@ -54,20 +67,8 @@ const staggerContainer = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2
-    }
-  }
-};
-
-const maskReveal = {
-  hidden: { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
-  visible: { 
-    clipPath: 'inset(0 0 0% 0)',
-    opacity: 1,
-    transition: { 
-      duration: 1.5, 
-      ease: [0.16, 1, 0.3, 1] 
+      staggerChildren: 0.1,
+      delayChildren: 0.1
     }
   }
 };
@@ -80,8 +81,9 @@ const Hero = () => {
     offset: ["start start", "end start"]
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -91,69 +93,80 @@ const Hero = () => {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center bg-brand-navy">
-      {/* BACKGROUND SLIDER */}
-      <div className="absolute inset-0 z-0 bg-brand-navy">
+    <section ref={containerRef} className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-brand-navy">
+      {/* IMMERSIVE BG SLIDER */}
+      <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
+            transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0"
-            style={{ y, scale }}
+            style={{ y, scale, opacity }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/30 via-transparent to-brand-navy/60 z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/40 via-transparent to-brand-navy/80 z-10"></div>
             <img 
               src={heroImages[current]} 
               className="w-full h-full object-cover" 
-              alt="Luxury Real Estate" 
+              alt="Luxury" 
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* CONTENT */}
-      <div className="container relative z-20 text-center px-6 max-w-4xl">
+      {/* FLOATING CONTENT */}
+      <div className="container relative z-20 text-center px-6 max-w-5xl">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
           <motion.div 
-            className="inline-flex items-center gap-2 mb-8 bg-brand-gold/10 px-4 py-2 rounded-full border border-brand-gold/20"
+            className="inline-flex items-center gap-2 mb-10 bg-brand-gold/10 px-6 py-2.5 rounded-full border border-brand-gold/30 backdrop-blur-md"
             variants={proReveal}
           >
-             <Gem size={14} className="text-brand-gold" />
-             <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold">Invitation-Only Platform</span>
+             <Gem size={14} className="text-brand-gold animate-pulse" />
+             <span className="text-[10px] font-black tracking-[0.3em] uppercase text-brand-gold">The Private Reserve</span>
           </motion.div>
           
           <motion.h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+            className="text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-8 leading-[0.95] tracking-tighter"
             variants={proReveal}
           >
-             Premium Properties.<br/><span className="text-brand-gold italic font-serif">Exclusive Deals.</span>
+             Premium Assets.<br/><span className="text-brand-gold italic font-serif">Curated Daily.</span>
           </motion.h1>
           
           <motion.p 
-            className="text-lg md:text-xl text-white/75 mb-12 max-w-2xl mx-auto font-medium"
+            className="text-xl md:text-2xl text-white/60 mb-14 max-w-2xl mx-auto font-medium"
             variants={proReveal}
           >
-             Access India's 1000+ verified NLCT properties at 20-50% below market value. Membership is limited.
+             Access India's 1000+ verified NLCT properties at 20-50% below market value.
           </motion.p>
           
           <motion.div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-6"
             variants={proReveal}
           >
-            <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-sm uppercase flex items-center gap-3 shadow-2xl hover:shadow-3xl transition-shadow">
-              <span>Apply for Membership</span>
-              <ArrowRight size={20} />
+            <Link to="/membership" className="group relative overflow-hidden bg-brand-gold text-brand-navy px-14 py-6 rounded-2xl font-black uppercase text-sm tracking-widest transition-transform hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(197,165,114,0.3)]">
+              <span className="relative z-10">Apply for Access</span>
+              <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
             </Link>
           </motion.div>
         </motion.div>
       </div>
+
+      {/* SCROLL INDICATOR */}
+      <motion.div 
+        className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+      >
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Scroll to Explore</span>
+        <div className="w-px h-20 bg-gradient-to-b from-brand-gold to-transparent"></div>
+      </motion.div>
     </section>
   );
 };
@@ -164,57 +177,38 @@ const StatsBanner = () => {
     target: containerRef,
     offset: ["start end", "end start"]
   });
-  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
   return (
-    <section ref={containerRef} className="relative py-20 bg-brand-navy overflow-hidden">
+    <section ref={containerRef} className="relative py-32 bg-brand-navy overflow-hidden">
       <motion.div 
-        className="absolute inset-0 opacity-90 bg-cover bg-center" 
-        style={{ backgroundImage: `url(${hero4})`, y }}
+        className="absolute inset-0 opacity-80 bg-cover bg-center" 
+        style={{ backgroundImage: `url(${hero4})`, y, scale: 1.1 }}
       ></motion.div>
-      <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/30 via-brand-navy/40 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-navy via-brand-navy/60 to-transparent"></div>
       
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 text-center lg:text-left">
-         <motion.span 
-           className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-4 block"
-           variants={proReveal}
-           initial="hidden"
-           whileInView="visible"
-           viewport={{ once: true }}
-         >
-           Why Partner With Us?
-         </motion.span>
-         <motion.h2 
-           className="text-4xl lg:text-5xl font-bold text-white mb-16"
-           variants={proReveal}
-           initial="hidden"
-           whileInView="visible"
-           viewport={{ once: true }}
-         >
-           Your Premier Real Estate Ally
-         </motion.h2>
-         
-         <motion.div 
-           className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl"
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+         <motion.div
            variants={staggerContainer}
            initial="hidden"
            whileInView="visible"
            viewport={{ once: true }}
          >
-            {[
-              { v: "1000+", l: "Properties Curated" },
-              { v: "15+", l: "Years Elevating Real Estate" },
-              { v: "₹5,000Cr+", l: "Value Managed" }
-            ].map((s, i) => (
-              <motion.div 
-                key={i} 
-                className="flex flex-col gap-2"
-                variants={proReveal}
-              >
-                 <span className="text-5xl font-black text-white">{s.v}</span>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-brand-gold/60">{s.l}</span>
-              </motion.div>
-            ))}
+           <motion.span variants={proReveal} className="text-brand-gold text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">Institutional Strength</motion.span>
+           <motion.h2 variants={proReveal} className="text-5xl lg:text-7xl font-bold text-white mb-20 max-w-3xl leading-tight">Your Premier<br/>Real Estate Ally</motion.h2>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 max-w-5xl">
+              {[
+                { v: "1000+", l: "Properties Curated" },
+                { v: "15+", l: "Years of Excellence" },
+                { v: "₹5,000Cr+", l: "Portfolio Value" }
+              ].map((s, i) => (
+                <motion.div key={i} variants={proReveal} className="flex flex-col gap-4 border-l border-white/10 pl-10">
+                   <span className="text-6xl font-black text-white tracking-tighter">{s.v}</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-gold/60">{s.l}</span>
+                </motion.div>
+              ))}
+           </div>
          </motion.div>
       </div>
     </section>
@@ -227,81 +221,132 @@ const PlatformDifferentiation = () => {
       t: "Institutional Access",
       d: "Direct pipeline to bank-REO inventories and distressed land blocks before they hit public aggregators.",
       img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2070&auto=format&fit=crop",
-      icon: <ShieldCheck size={24} />,
-      color: "gold"
+      icon: <ShieldCheck size={32} />,
     },
     {
       t: "Predictive Analytics",
       d: "Proprietary heat-maps identifying high-yield corridors in Gurgaon and NCR with 15-20% projected uplift.",
       img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
-      icon: <TrendingUp size={24} />,
-      color: "teal"
+      icon: <TrendingUp size={32} />,
     },
     {
       t: "Platform Infrastructure",
       d: "Integrated legal-tech and escrow protocols ensuring secure, institutional-grade transaction velocity.",
       img: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop",
-      icon: <Globe2 size={24} />,
-      color: "navy"
+      icon: <Globe2 size={32} />,
     }
   ];
 
   return (
-    <section className="section-padding bg-zinc-50 overflow-hidden">
+    <section className="py-40 bg-zinc-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="text-center mb-24">
-          <motion.span 
-            className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block"
-            variants={proReveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            Why This Platform is Superior
-          </motion.span>
-          <motion.h2 
-            className="text-4xl lg:text-6xl font-bold text-brand-navy"
-            variants={proReveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            Platform Differentiation
-          </motion.h2>
-        </div>
-
         <motion.div 
-          className="grid lg:grid-cols-3 gap-8"
+          className="text-center mb-32"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
+          <motion.span variants={proReveal} className="text-brand-gold text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">Superior Methodology</motion.span>
+          <motion.h2 variants={proReveal} className="text-5xl lg:text-8xl font-bold text-brand-navy tracking-tighter">Why This Platform<br/>is Superior</motion.h2>
+        </motion.div>
+
+        <motion.div 
+          className="grid lg:grid-cols-3 gap-10"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+        >
           {cards.map((card, i) => (
             <motion.div 
               key={i} 
-              className="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-700"
-              variants={proReveal}
+              className="group relative h-[650px] rounded-[50px] overflow-hidden shadow-2xl"
+              variants={maskReveal}
             >
-              {/* Image Background */}
               <img 
                 src={card.img} 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
                 alt={card.t} 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-700"></div>
               
-              {/* Content Overlay */}
-              <div className="absolute inset-0 p-12 flex flex-col justify-end">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-8 border border-white/20 group-hover:bg-brand-gold/20 group-hover:border-brand-gold/40 transition-all">
-                  <div className="text-brand-gold">{card.icon}</div>
+              <div className="absolute inset-0 p-16 flex flex-col justify-end translate-y-10 group-hover:translate-y-0 transition-transform duration-700">
+                <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-xl flex items-center justify-center mb-10 border border-white/20 group-hover:bg-brand-gold group-hover:text-brand-navy transition-all duration-500">
+                  <div className="text-brand-gold group-hover:text-inherit">{card.icon}</div>
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-brand-gold transition-colors">{card.t}</h3>
-                <p className="text-white/60 text-sm leading-relaxed font-medium mb-8 max-w-[280px]">
+                <h3 className="text-4xl font-bold text-white mb-6 leading-tight">{card.t}</h3>
+                <p className="text-white/60 text-base leading-relaxed font-medium mb-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                   {card.d}
                 </p>
-                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  Learn more <ArrowRight size={14} className="text-brand-gold" />
+                <div className="flex items-center gap-4 text-brand-gold font-black text-[10px] uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-all duration-700">
+                  Explore Vector <ArrowRight size={16} />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const PlatformInfrastructure = () => {
+  const advantages = [
+    { title: "1000+ Premium Properties", desc: "20-50% Discount. Largest curated NLCT portfolio in India with value over ₹5,000 crores.", icon: <Building2 size={32} />, img: hero1 },
+    { title: "Dedicated Personal Agent", desc: "Your Property Scout. Expert familiar with your budget and goals manages your journey.", icon: <Users2 size={32} />, img: agentImg },
+    { title: "Expert Legal Support", desc: "Compliance & Senior advocates handling document verification and 12-month warranties.", icon: <Landmark size={32} />, img: legalImg },
+    { title: "Quarterly Investor Events", desc: "4 Per Year. Networking designed for serious investors. Spring, Mid-Year, Portfolio, Gala.", icon: <Calendar size={32} />, img: eventImg },
+    { title: "Free Lifetime Selling", desc: "Zero commission forever on properties purchased through our exclusive platform.", icon: <ArrowUpRight size={32} />, img: aboutImg },
+    { title: "Verified Buyers & Sellers", desc: "Controlled platform for serious investors. No casual browsers or window shoppers.", icon: <ShieldCheck size={32} />, img: prop1 },
+    { title: "Transparent Auction Process", desc: "Complete clarity, bidding strategy consultation, and filling management.", icon: <Gavel size={32} />, img: prop2 },
+    { title: "Stress-Free Handover", desc: "From win to possession, we handle registration, inspection and documentation.", icon: <Handshake size={32} />, img: agentImg },
+    { title: "Investment Insights", desc: "Comprehensive research achieving 15-25% average member ROI through data.", icon: <TrendingUp size={32} />, img: prop3 }
+  ];
+
+  return (
+    <section className="py-40 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <motion.div 
+          className="text-center mb-32"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <motion.span variants={proReveal} className="text-brand-gold text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">Foundation & Trust</motion.span>
+          <motion.h2 variants={proReveal} className="text-5xl lg:text-8xl font-bold text-brand-navy tracking-tighter">Platform Infrastructure</motion.h2>
+        </motion.div>
+        
+        <motion.div 
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-10"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.05 }}
+        >
+          {advantages.map((adv, i) => (
+            <motion.div 
+              key={i}
+              className="group relative h-[450px] rounded-[40px] overflow-hidden border border-zinc-100 bg-zinc-50"
+              variants={proReveal}
+            >
+              <div className="absolute inset-0 bg-white">
+                <motion.img 
+                  src={adv.img} 
+                  alt={adv.title} 
+                  className="w-full h-full object-cover opacity-[0.03] grayscale transition-all duration-1000 group-hover:scale-110 group-hover:opacity-10"
+                  variants={maskReveal}
+                />
+              </div>
+              
+              <div className="relative p-16 h-full flex flex-col justify-between group-hover:bg-brand-navy transition-colors duration-700">
+                <div className="w-20 h-20 rounded-3xl bg-brand-navy text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-brand-navy transition-all duration-500 shadow-2xl">
+                  {adv.icon}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-brand-navy mb-4 group-hover:text-white transition-colors tracking-tight">{adv.title}</h3>
+                  <p className="text-sm text-zinc-500 font-medium leading-relaxed group-hover:text-white/60 transition-colors">{adv.desc}</p>
                 </div>
               </div>
             </motion.div>
@@ -314,60 +359,61 @@ const PlatformDifferentiation = () => {
 
 const EnhancedPortfolio = () => {
   const properties = [
-    { t: "Trump Tower 2", l: "Sector 69, SPR Road, Gurgaon", p: "₹9.2 Cr", img: prop1, d: "View verified property details, pricing, and location insights." },
-    { t: "M3M Jacob & Co Noida", l: "At Sector 94, Noida", p: "₹7.5 Cr", img: prop2, d: "View verified property details, pricing, and location insights." },
-    { t: "M3M Paragon 57", l: "Sector 57, Gurugram", p: "₹1.2 Cr", img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1035&auto=format&fit=crop", d: "View verified property details, pricing, and location insights." },
-    { t: "The Imperial", l: "Sector 102, Gurgaon", p: "₹3.2 Cr", img: prop3, d: "View verified property details, pricing, and location insights." },
-    { t: "Smart World Orchard", l: "Sector 61, Gurgaon", p: "₹2.5 Cr", img: resImg, d: "View verified property details, pricing, and location insights." },
-    { t: "Elan The Mark", l: "Sector 106, Gurgaon", p: "₹1.9 Cr", img: offImg, d: "View verified property details, pricing, and location insights." }
+    { t: "Trump Tower 2", l: "Sector 69, Gurgaon", p: "₹9.2 Cr", img: prop1, tag: "Exclusive" },
+    { t: "M3M Jacob & Co", l: "Sector 94, Noida", p: "₹7.5 Cr", img: prop2, tag: "Distressed" },
+    { t: "The Imperial", l: "Sector 102, Gurgaon", p: "₹3.2 Cr", img: prop3, tag: "Verified" },
+    { t: "Smart World Orchard", l: "Sector 61, Gurgaon", p: "₹2.5 Cr", img: resImg, tag: "Auction" },
+    { t: "Elan The Mark", l: "Sector 106, Gurgaon", p: "₹1.9 Cr", img: offImg, tag: "High Yield" },
+    { t: "Westin Residences", l: "Sector 103, Gurgaon", p: "₹6.1 Cr", img: hero2, tag: "Rare Block" }
   ];
 
   return (
-    <section className="section-padding bg-white overflow-hidden">
+    <section className="py-40 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <motion.div 
-          className="text-center mb-24"
-          variants={proReveal}
+          className="flex flex-col md:flex-row justify-between items-end mb-32 gap-10"
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <span className="text-brand-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 block">Institutional Grade Assets</span>
-          <h2 className="text-4xl lg:text-6xl font-bold text-brand-navy mb-4">Curated Portfolio</h2>
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">1000+ Premium Properties Handpicked for Serious Investors</p>
+          <div className="max-w-2xl">
+            <motion.span variants={proReveal} className="text-brand-gold text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">Current Inventory</motion.span>
+            <motion.h2 variants={proReveal} className="text-5xl lg:text-8xl font-bold text-brand-navy tracking-tighter leading-none">Curated Portfolio</motion.h2>
+          </div>
+          <motion.div variants={proReveal}>
+             <Link to="/properties" className="btn-pill !bg-brand-navy text-white px-12 py-5 !rounded-full text-xs font-black tracking-widest uppercase hover:bg-brand-gold hover:text-brand-navy transition-all duration-500">View All 1000+ Assets</Link>
+          </motion.div>
         </motion.div>
 
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
           {properties.map((p, i) => (
-            <motion.div 
-              key={i} 
-              className="group cursor-pointer"
-              variants={proReveal}
-            >
+            <motion.div key={i} className="group cursor-pointer" variants={proReveal}>
               <motion.div 
-                className="aspect-[4/5] overflow-hidden rounded-[32px] mb-8 shadow-2xl relative"
-                whileHover={{ y: -10 }}
+                className="aspect-[3/4] overflow-hidden rounded-[60px] mb-10 shadow-3xl relative"
                 variants={maskReveal}
               >
-                <img src={p.img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={p.t} />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="absolute top-6 left-6 bg-brand-gold text-brand-navy text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-lg transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                  Verified Asset
+                <img src={p.img} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={p.t} />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                <div className="absolute top-10 left-10 bg-brand-gold text-brand-navy text-[10px] font-black px-6 py-2.5 rounded-full uppercase tracking-widest shadow-2xl">
+                  {p.tag}
                 </div>
               </motion.div>
-              <h3 className="text-2xl font-bold text-brand-navy mb-1 group-hover:text-brand-gold transition-colors">{p.t}</h3>
-              <p className="text-sm font-bold text-zinc-400 mb-4 flex items-center gap-2">
-                <MapPin size={14} className="text-brand-gold" /> {p.l}
-              </p>
-              <div className="flex items-center justify-between">
-                <p className="text-xl font-black text-brand-navy">{p.p}</p>
-                <Link to={`/property/${i}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-gold border-b border-brand-gold/30 pb-0.5 hover:border-brand-gold transition-all">View Details</Link>
+              <div className="px-6">
+                <h3 className="text-3xl font-black text-brand-navy mb-2 group-hover:text-brand-gold transition-colors tracking-tight">{p.t}</h3>
+                <p className="text-base font-bold text-zinc-400 mb-6 flex items-center gap-2">
+                  <MapPin size={16} className="text-brand-gold" /> {p.l}
+                </p>
+                <div className="flex items-center justify-between border-t border-zinc-100 pt-6">
+                  <p className="text-2xl font-black text-brand-navy">{p.p}</p>
+                  <ArrowUpRight size={24} className="text-brand-gold transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </div>
               </div>
             </motion.div>
           ))}
@@ -383,132 +429,108 @@ const TestimonialSection = () => {
     target: containerRef,
     offset: ["start end", "end start"]
   });
-  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
   return (
-    <section ref={containerRef} className="py-32 relative bg-brand-navy overflow-hidden">
+    <section ref={containerRef} className="py-48 relative bg-brand-navy overflow-hidden">
        <motion.div 
-         className="absolute inset-0 opacity-85 bg-cover bg-center" 
-         style={{ backgroundImage: `url(${aboutImg})`, y }}
+         className="absolute inset-0 opacity-40 bg-cover bg-center" 
+         style={{ backgroundImage: `url(${aboutImg})`, y, scale: 1.2 }}
        ></motion.div>
-       <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/50 to-brand-navy/90"></div>
+       <div className="absolute inset-0 bg-gradient-to-b from-brand-navy via-brand-navy/40 to-brand-navy"></div>
        
-       <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10 flex flex-col justify-center">
-          <div className="relative mb-12 max-w-4xl">
-            <motion.p 
-              className="text-white text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed mb-8 opacity-90"
-              variants={proReveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-               "Being based in Dubai, I wanted to invest in Gurgaon property but was worried about fraud and hidden costs. A friend recommended PremiumLand. Honestly, they made everything so transparent—sent me video tours, explained every single charge beforehand, and even helped me understand RERA compliance. I bought a 3 BHK in Golf Course Extension Road, and they're now managing the rental for me too. Worth every rupee of their fee. Finally found someone trustworthy in real estate!"
-            </motion.p>
-            <motion.div 
-              className="flex items-center gap-4"
-              variants={proReveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-               <div className="w-14 h-14 rounded-full overflow-hidden border border-brand-gold bg-brand-gold/10">
-                  <img src={agentImg} alt="Raj Mehta" className="w-full h-full object-cover" />
+       <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+            <div className="w-24 h-24 rounded-full border border-brand-gold/30 flex items-center justify-center mb-12">
+               <span className="text-brand-gold text-5xl font-serif">"</span>
+            </div>
+            <p className="text-white text-3xl md:text-5xl font-medium leading-[1.2] mb-16 tracking-tight">
+               "Being based in Dubai, I wanted to invest in Gurgaon property but was worried about fraud. PremiumLand made everything so transparent—sent me video tours, explained every single charge, and helped me understand RERA. Finally found someone trustworthy."
+            </p>
+            <div className="flex items-center gap-6">
+               <div className="w-20 h-20 rounded-[25px] overflow-hidden border-2 border-brand-gold shadow-2xl">
+                  <img src={agentImg} alt="Investor" className="w-full h-full object-cover" />
                </div>
-               <div className="text-left">
-                  <p className="text-white font-bold text-lg">Raj Mehta</p>
-                  <p className="text-brand-gold/80 text-xs font-bold uppercase tracking-widest mt-1">NRI Investor, Dubai</p>
+               <div>
+                  <p className="text-white font-black text-xl tracking-tight">Raj Mehta</p>
+                  <p className="text-brand-gold text-xs font-black uppercase tracking-[0.3em] mt-1">NRI Investor, Dubai</p>
                </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
        </div>
     </section>
   );
 };
 
-// Team & Careers Section (Bento Grid)
 const TeamCareers = () => (
-  <section className="py-24 bg-[#FAF9F6] border-y border-zinc-200 overflow-hidden">
+  <section className="py-40 bg-[#FAF9F6] border-y border-zinc-200 overflow-hidden">
     <div className="max-w-7xl mx-auto px-6 lg:px-12">
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
       >
-        
         {/* Column 1 */}
-        <motion.div className="flex flex-col gap-6" variants={proReveal}>
-          <motion.div className="rounded-3xl bg-zinc-200 h-80 overflow-hidden shadow-sm" variants={maskReveal}>
-            <img src={bentoGlassSky} alt="Glass Skyscrapers" className="w-full h-full object-cover" />
+        <motion.div className="flex flex-col gap-8" variants={proReveal}>
+          <motion.div className="rounded-[50px] bg-zinc-200 h-[500px] overflow-hidden shadow-2xl" variants={maskReveal}>
+            <img src={bentoGlassSky} alt="Architecture" className="w-full h-full object-cover" />
           </motion.div>
-          <div className="grid grid-cols-4 gap-3 h-20">
-            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Instagram size={20} /></a>
-            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Facebook size={20} /></a>
-            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Linkedin size={20} /></a>
-            <a href="#" className="bg-brand-navy rounded-2xl flex items-center justify-center text-white hover:bg-zinc-800 transition-colors shadow-sm"><Youtube size={20} /></a>
+          <div className="grid grid-cols-4 gap-4 h-24">
+            <a href="#" className="bg-brand-navy rounded-[25px] flex items-center justify-center text-white hover:bg-brand-gold hover:text-brand-navy transition-all shadow-xl"><Instagram size={24} /></a>
+            <a href="#" className="bg-brand-navy rounded-[25px] flex items-center justify-center text-white hover:bg-brand-gold hover:text-brand-navy transition-all shadow-xl"><Facebook size={24} /></a>
+            <a href="#" className="bg-brand-navy rounded-[25px] flex items-center justify-center text-white hover:bg-brand-gold hover:text-brand-navy transition-all shadow-xl"><Linkedin size={24} /></a>
+            <a href="#" className="bg-brand-navy rounded-[25px] flex items-center justify-center text-white hover:bg-brand-gold hover:text-brand-navy transition-all shadow-xl"><Youtube size={24} /></a>
           </div>
-          <motion.div className="rounded-3xl bg-zinc-200 h-48 overflow-hidden relative shadow-sm group cursor-pointer border border-zinc-200" variants={maskReveal}>
-            <img src={prop1} alt="Modern Office" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-brand-navy/20 to-transparent"></div>
-            <div className="absolute top-4 left-4 bg-brand-navy/80 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/10 shadow-lg">Innovative Strategies</div>
-          </motion.div>
         </motion.div>
 
         {/* Column 2 */}
-        <motion.div className="flex flex-col gap-6" variants={proReveal}>
-          <motion.div className="rounded-3xl bg-zinc-200 h-96 overflow-hidden relative shadow-sm group cursor-pointer border border-zinc-200" variants={maskReveal}>
-            <img src={bentoApartments} alt="Apartment Complex" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 via-transparent to-brand-navy/10"></div>
-            <div className="absolute top-4 left-4 bg-brand-navy/80 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/10 shadow-lg">Strategic Investment</div>
-            <div className="absolute bottom-6 left-6 text-white text-xl font-bold max-w-[150px]">Insightful Consulting</div>
+        <motion.div className="flex flex-col gap-8" variants={proReveal}>
+          <motion.div className="rounded-[50px] bg-zinc-200 h-[650px] overflow-hidden relative group cursor-pointer shadow-2xl" variants={maskReveal}>
+            <img src={bentoApartments} alt="Estate" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"></div>
+            <div className="absolute bottom-10 left-10 text-white text-3xl font-black max-w-[200px] leading-tight">Insightful Consulting</div>
           </motion.div>
-          <div className="rounded-3xl bg-brand-navy h-[208px] flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
-            <div className="w-24 h-24 rounded-full border-[3px] border-zinc-800 flex items-center justify-center relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
-               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                 <circle cx="48" cy="48" r="45" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-green-500" strokeDasharray="282" strokeDashoffset="24" strokeLinecap="round" />
-               </svg>
-               <span className="text-white font-bold text-xl relative z-10">92%</span>
-            </div>
-          </div>
         </motion.div>
 
         {/* Column 3 */}
-        <motion.div className="flex flex-col gap-6" variants={proReveal}>
-          <motion.div className="rounded-3xl bg-zinc-200 h-72 overflow-hidden shadow-sm border border-zinc-200" variants={maskReveal}>
-            <img src={prop2} alt="Residential Towers" className="w-full h-full object-cover" />
+        <motion.div className="flex flex-col gap-8" variants={proReveal}>
+          <motion.div className="rounded-[50px] bg-zinc-200 h-80 overflow-hidden shadow-2xl" variants={maskReveal}>
+            <img src={prop2} alt="Asset" className="w-full h-full object-cover" />
           </motion.div>
-          <motion.div className="rounded-3xl bg-blue-700 h-[304px] overflow-hidden relative shadow-md group cursor-pointer" variants={maskReveal}>
-            <img src={bentoNightSky} alt="Night Sky" className="w-full h-full object-cover mix-blend-overlay opacity-90 group-hover:scale-105 transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent mix-blend-multiply opacity-50"></div>
-            <div className="absolute top-4 left-4 bg-brand-navy/60 text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/20 shadow-lg">Empowering Futures</div>
+          <motion.div className="rounded-[50px] bg-blue-700 h-96 overflow-hidden relative group cursor-pointer shadow-2xl" variants={maskReveal}>
+            <img src={bentoNightSky} alt="Vision" className="w-full h-full object-cover opacity-80" />
+            <div className="absolute inset-0 bg-brand-navy/40 flex items-center justify-center p-10 text-center">
+               <span className="text-white text-xl font-bold leading-relaxed tracking-tight group-hover:scale-110 transition-transform duration-700">Empowering The Future of Real Estate</span>
+            </div>
           </motion.div>
         </motion.div>
 
         {/* Column 4 */}
-        <motion.div className="flex flex-col gap-6" variants={proReveal}>
-          <div className="rounded-3xl bg-brand-navy h-[384px] p-8 relative overflow-hidden shadow-lg flex flex-col justify-between">
-            <h3 className="text-[28px] font-bold text-white relative z-10 leading-tight">Join Our Visionary Team</h3>
-            <div className="relative z-10">
-              <div className="flex -space-x-4 mb-6">
-                <div className="w-16 h-16 rounded-full border-2 border-brand-navy bg-white overflow-hidden shadow-xl">
-                   <img src={agentImg} className="w-full h-full object-cover scale-150 object-top" alt="Agent 1" />
-                </div>
-                <div className="w-16 h-16 rounded-full border-2 border-brand-navy bg-white overflow-hidden shadow-xl">
-                   <img src={aboutImg} className="w-full h-full object-cover scale-125 object-center" alt="Agent 2" />
-                </div>
+        <motion.div className="flex flex-col gap-8" variants={proReveal}>
+          <div className="rounded-[50px] bg-brand-navy h-[450px] p-12 relative overflow-hidden shadow-3xl flex flex-col justify-between">
+            <h3 className="text-4xl font-black text-white leading-tight tracking-tight">Join Our Visionary Team</h3>
+            <div>
+              <div className="flex -space-x-6 mb-10">
+                {[agentImg, aboutImg, hero1].map((img, i) => (
+                  <div key={i} className="w-20 h-20 rounded-full border-4 border-brand-navy overflow-hidden shadow-2xl">
+                     <img src={img} className="w-full h-full object-cover" alt="Team" />
+                  </div>
+                ))}
               </div>
-              <Link to="/careers" className="inline-block text-white text-[17px] font-medium border-b-2 border-brand-gold pb-0.5 hover:text-brand-gold transition-colors">
-                Explore Careers
+              <Link to="/careers" className="inline-flex items-center gap-4 text-brand-gold text-lg font-black uppercase tracking-widest group">
+                Apply Now <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
               </Link>
             </div>
           </div>
-          <motion.div className="rounded-3xl bg-zinc-200 h-44 overflow-hidden relative shadow-sm border border-zinc-200" variants={maskReveal}>
-            <img src={hero1} alt="Residence" className="w-full h-full object-cover" />
-            <div className="absolute bottom-4 right-4 bg-white/95 shadow-xl rounded-full py-2 px-3 flex items-center gap-2 cursor-pointer hover:bg-white transition-colors border border-zinc-100">
-               <span className="text-xs font-bold text-brand-navy pl-1">Contact us</span>
-               <div className="w-6 h-6 rounded-full bg-[#6dbf73] flex items-center justify-center text-white shadow-[0_0_10px_rgba(109,191,115,0.5)]"><MessageSquare size={12} fill="currentColor" className="text-white scale-90" /></div>
-            </div>
+          <motion.div className="rounded-[50px] bg-brand-gold h-48 flex items-center justify-center relative overflow-hidden group shadow-2xl" variants={maskReveal}>
+             <div className="absolute inset-0 bg-brand-navy -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
+             <span className="text-brand-navy font-black text-lg tracking-widest relative z-10 group-hover:text-white transition-colors">CONTACT US</span>
           </motion.div>
         </motion.div>
 
@@ -523,45 +545,46 @@ const Home = () => {
       <Hero />
       <StatsBanner />
       <PlatformDifferentiation />
+      <PlatformInfrastructure />
       <EnhancedPortfolio />
       <TestimonialSection />
       <TeamCareers />
       
-      {/* FINAL CTA */}
+      {/* MEGA CTA */}
       <motion.section 
-        className="py-24 bg-brand-navy text-white text-center overflow-hidden relative"
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        className="py-48 bg-brand-navy text-white text-center overflow-hidden relative"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
         viewport={{ once: true }}
       >
-        <div className="absolute inset-0 bg-cover bg-center opacity-75" style={{ backgroundImage: `url(${agentImg})` }}></div>
-        <div className="absolute inset-0 bg-brand-navy/40"></div>
+        <div className="absolute inset-0 bg-cover bg-center opacity-40 grayscale" style={{ backgroundImage: `url(${hero1})` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/60 via-brand-navy to-brand-navy"></div>
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <motion.h3 
-            className="text-5xl lg:text-7xl font-bold mb-6"
+            className="text-7xl md:text-9xl font-black mb-10 tracking-tighter leading-none"
             variants={proReveal}
             initial="hidden"
             whileInView="visible"
           >
-            Ready to Access<br/>Premium Deals?
+            Ready for<br/><span className="text-brand-gold italic">Victory?</span>
           </motion.h3>
           <motion.p 
-            className="text-white/70 text-lg mb-12 max-w-2xl mx-auto font-medium"
+            className="text-white/50 text-xl mb-16 max-w-2xl mx-auto font-medium"
             variants={proReveal}
             initial="hidden"
             whileInView="visible"
           >
-            Join thousands of investors already building wealth through PremiumLand's exclusive platform.
+            Join the most exclusive real estate network in India today.
           </motion.p>
           <motion.div 
-            className="flex flex-wrap justify-center gap-4"
+            className="flex flex-wrap justify-center gap-8"
             variants={proReveal}
             initial="hidden"
             whileInView="visible"
           >
-            <Link to="/membership" className="btn-pill btn-gold px-12 py-5 !rounded-lg text-sm font-black uppercase shadow-2xl">Apply for Membership</Link>
-            <a href="tel:+919090112214" className="btn-pill !border-white/20 !text-white !px-12 !py-5 hover:bg-white/10 text-sm font-black uppercase transition-all">Call: +91 909-011-2214</a>
+            <Link to="/membership" className="bg-brand-gold text-brand-navy px-16 py-7 rounded-[30px] font-black uppercase text-sm tracking-[0.3em] shadow-3xl hover:scale-105 transition-transform">Apply Today</Link>
+            <a href="tel:+919090112214" className="border-2 border-white/20 text-white px-16 py-7 rounded-[30px] font-black uppercase text-sm tracking-[0.3em] hover:bg-white/10 transition-all">Direct Line</a>
           </motion.div>
         </div>
       </motion.section>
