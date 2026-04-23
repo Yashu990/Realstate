@@ -10,28 +10,28 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Asset Imports (using absolute paths to prevent blank pages)
-import hero1 from '../assets/hero_mansion_1775971669274.png';
-import hero2 from '../assets/hero_villa_1775971611180.png';
-import hero3 from '../assets/hero_penthouse_1775971633142.png';
-import hero4 from '../assets/hero_office_1775971651404.png';
-import agentImg from '../assets/agent_meeting_1775971756154.png';
+// Asset Imports
+import hero1 from '../assets/hero1.png';
+import hero2 from '../assets/hero2.png';
+import hero3 from '../assets/hero3.png';
+import hero4 from '../assets/hero4.png';
+import agentImg from '../assets/agent.png';
 import eventImg from '../assets/event.png';
-import legalImg from '../assets/legal_handover_1775971774939.png';
+import legalImg from '../assets/legal.png';
 import resImg from '../assets/res.png';
 import commImg from '../assets/comm.png';
 import offImg from '../assets/off.png';
-import aboutImg from '../assets/prop_interior_two_1775971698043.png';
+import aboutImg from '../assets/about-img.png';
 import chaosImg from '../assets/chaos.png';
 import advantageImg from '../assets/advantage.png';
-import prop1 from '../assets/prop_exterior_one_1775971719346.png';
-import prop2 from '../assets/prop_exterior_two_1775971739359.png';
-import prop3 from '../assets/prop_interior_one_1775971684158.png';
+import prop1 from '../assets/prop1.png';
+import prop2 from '../assets/prop2.png';
+import prop3 from '../assets/prop3.png';
 
-// Bento/Team Imports
-import bentoGlassSky from '../assets/bento_glass_sky_1775973425945.png';
-import bentoNightSky from '../assets/bento_night_sky_1775973444028.png';
-import bentoApartments from '../assets/bento_apartments_1775973460872.png';
+// Fallback logic for missing bento assets to prevent build break
+const bentoGlassSky = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop";
+const bentoNightSky = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop";
+const bentoApartments = "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop";
 
 const heroImages = [hero1, hero2, hero3, hero4];
 
