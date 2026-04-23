@@ -19,8 +19,8 @@ const Footer = () => (
       </div>
       
       <div className="text-left">
-        <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] mb-10 text-[#c5a059]">Navigation</h4>
-        <ul className="space-y-6 text-xs font-bold text-white/50 tracking-widest">
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] mb-10 text-brand-gold">Navigation</h4>
+        <ul className="space-y-6 text-xs font-bold text-white/60 tracking-widest">
           <li><Link to="/properties" className="hover:text-white transition-colors uppercase">Inventory Hub</Link></li>
           <li><Link to="/membership" className="hover:text-white transition-colors uppercase">Admission Protocol</Link></li>
           <li><Link to="/about" className="hover:text-white transition-colors uppercase">Private Bank</Link></li>
@@ -28,8 +28,8 @@ const Footer = () => (
       </div>
       
       <div className="text-left">
-        <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] mb-10 text-[#c5a059]">Institutional</h4>
-        <ul className="space-y-6 text-xs font-bold text-white/50 tracking-widest">
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.5em] mb-10 text-brand-gold">Institutional</h4>
+        <ul className="space-y-6 text-xs font-bold text-white/60 tracking-widest">
           <li><Link to="/faq" className="hover:text-white transition-colors uppercase">Legal Warrants</Link></li>
           <li><a href="#" className="hover:text-white transition-colors uppercase">Mandate Policy</a></li>
           <li><a href="#" className="hover:text-white transition-colors uppercase">Data Sovereignty</a></li>

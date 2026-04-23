@@ -49,7 +49,7 @@ const ContactSection = () => (
          </div>
          <input type="email" placeholder="Institutional Email" className="w-full p-5 bg-zinc-50 border-none rounded-2xl mb-6 outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all text-sm font-medium" />
          <textarea placeholder="Portfolio mandate details..." className="w-full p-5 bg-zinc-50 border-none rounded-2xl mb-10 min-h-[140px] outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all text-sm font-medium"></textarea>
-         <button className="btn-pill btn-primary !bg-brand-navy w-full !py-6 shadow-2xl shadow-brand-navy/20 font-black uppercase text-xs tracking-widest">
+         <button className="btn-pill btn-primary !bg-brand-navy w-full !py-6 shadow-2xl shadow-[0_20px_50px_rgba(10,17,40,0.2)] font-black uppercase text-xs tracking-widest">
             <span>Request Confidential Prospectus</span>
          </button>
       </motion.div>

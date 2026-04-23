@@ -1,12 +1,12 @@
-@import "tailwindcss";
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-brand-navy: #0a1128;
   --color-brand-gold: #c5a059;
   --color-brand-offwhite: #f8f9fa;
   --color-brand-dark: #050a18;
+  --color-brand-teal: #14b8a6;
   
   --font-serif: "Inter", sans-serif;
   --font-sans: "Inter", sans-serif;
@@ -14,6 +14,8 @@
   --radius-4xl: 1rem;
   --radius-5xl: 1.5rem;
   --radius-6xl: 2.5rem;
+
+  --shadow-3xl: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
